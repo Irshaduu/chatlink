@@ -13,7 +13,7 @@
             border-radius: 6px;
             text-align: center;
         }
-        input { width:100%; padding:10px; margin-top:15px; }
+        input { width:100%; padding:10px; margin-top:15px; box-sizing:border-box; }
         button { width:100%; margin-top:20px; padding:10px; background:#2d6cdf; color:#fff; border:none; }
         .link { margin-top:15px; font-size:14px; }
     </style>
@@ -26,13 +26,16 @@
     <form method="post">
         {% csrf_token %}
         <input type="text" name="otp" placeholder="Enter OTP" required>
-        <button type="submit">Verify OTP</button>
-        
+
+        <input type="password" name="password" placeholder="Create Password" required>
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+
+        <button type="submit">Verify & Create Account</button>
     </form>
 
     <div class="link">
-    <a href="{% url 'resend_otp' %}">Resend OTP</a>
-</div>
+        <a href="{% url 'resend_otp' %}">Resend OTP</a>
+    </div>
 
 </div>
 

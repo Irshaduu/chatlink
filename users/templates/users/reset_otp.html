@@ -2,20 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ChatLink | Forgot Password</title>
+    <title>ChatLink | Verify OTP</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Arial;
             background: #f4f6f8;
         }
         .container {
-            max-width: 380px;
+            max-width: 350px;
             margin: 80px auto;
             background: #fff;
             padding: 25px;
             border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         input, button {
             width: 100%;
@@ -27,19 +27,16 @@
             background: #2d6cdf;
             color: #fff;
             border: none;
-            cursor: pointer;
         }
-        .message {
-            margin-top: 10px;
-        }
-        .success { color: green; }
-        .error { color: red; }
+        .message { margin-top:10px; }
+        .error { color:red; }
+        .success { color:green; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Forgot Password</h2>
+    <h2>Verify OTP</h2>
 
 {% if messages %}
     {% for message in messages %}
@@ -51,13 +48,9 @@
 
     <form method="post">
         {% csrf_token %}
-        <input type="text" name="identifier" placeholder="Email or Mobile" required>
-        <button type="submit">Send OTP</button>
+        <input type="text" name="otp" placeholder="Enter OTP" required>
+        <button type="submit">Verify OTP</button>
     </form>
-
-    <p style="margin-top:15px;">
-        <a href="{% url 'login' %}">Back to Login</a>
-    </p>
 </div>
 
 </body>
