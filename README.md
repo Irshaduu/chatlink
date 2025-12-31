@@ -1,55 +1,112 @@
 # 💬 ChatLink
 
-ChatLink is a backend-focused real-time communication platform where users can connect with random people based on selected languages.
+**ChatLink** is a backend-focused communication platform where users connect with others based on language preferences.
 
-This project is built as a **learning + portfolio project** to practice **advanced Python and Django backend development**, with a strong focus on clean architecture, scalability, and real-world features.
+This project is built as a **learning + portfolio project** with a strong focus on **real-world backend architecture**, security, and clean Django practices — not as a rushed demo app.
 
 ---
 
-## 🎯 Project Goals
+## 🎯 Project Objectives
 
-- Practice Django from **foundation to advanced level**
-- Build a **real-world backend system**, not a toy app
+- Practice Django from **foundation to advanced backend concepts**
+- Build a **production-oriented authentication and onboarding system**
 - Gain hands-on experience with:
-  - Custom authentication
-  - Real-time communication
-  - Background tasks
-  - API design & security
+  - Custom user models
+  - OTP-based authentication
+  - Secure session handling
+  - Scalable data modeling
 - Prepare confidently for **backend developer interviews**
 
 ---
 
-## 🚀 Features (Planned & In Progress)
+## 🔐 Authentication & Registration (Implemented)
 
-- ✅ Custom User model (Django)
-- 🔄 User profile & language preferences
-- 🔄 Language-based random matchmaking
-- 🔄 Real-time text chat (WebSockets)
+ChatLink uses a **security-first, OTP-based authentication flow**.
+
+### ✔ Implemented Features
+
+- ✅ Custom User model (`AbstractUser`)
+- ✅ OTP-based registration (Email or Mobile)
+- ✅ OTP-based password reset
+- ✅ Login via Username / Email / Mobile
+- ✅ OTP-first architecture (no half-created users)
+- ✅ Session-safe account creation & cleanup
+- ✅ Age validation (**13+ only**)
+- ✅ Country selection (ISO standard)
+- ✅ Native & learning language preferences (ISO codes)
+- ✅ Secure logout (POST + CSRF)
+- ✅ Cache-safe protected pages
+
+> User accounts are created **only after OTP verification**, preventing incomplete or ghost users.
+
+---
+
+## 👤 Profile System
+
+### Current
+- ✅ View profile
+
+### In Progress
+- 🔄 Edit profile details
+- 🔄 Update language preferences
+- 🔄 Profile picture upload
+
+---
+
+## 🌍 Matching & Communication (Planned)
+
+- 🔄 Language-based user matching
+- 🔄 One-to-one chat system
+- 🔄 Real-time messaging (WebSockets)
 - 🔄 Voice & video calls (WebRTC)
 - 🔄 Live message translation
-- 🔄 User moments (mini gallery with description)
-- 🔄 Secure & scalable backend architecture
-
-> ⚠️ Note: Features are implemented step by step.  
-> This project focuses on **quality and learning**, not rushed completion.
+- 🔄 User moments / media sharing
 
 ---
 
 ## 🛠 Tech Stack
 
 ### Backend
-- **Python:** 3.11.9
-- **Django:** 4.2 (LTS)
-- **API:** Django REST Framework (planned)
-- **Realtime:** Django Channels (planned)
+- **Python:** 3.11.9  
+- **Django:** 4.2 (LTS)  
+- **Authentication:** Custom OTP-based system  
+- **Countries:** `django-countries`  
+- **Languages:** `pycountry`
 
-### Infrastructure (Planned)
-- **Database:** PostgreSQL
+### Planned Extensions
+- **API:** Django REST Framework
+- **Realtime:** Django Channels
 - **Cache / Broker:** Redis
 - **Background Tasks:** Celery
 - **Deployment:** Docker + Cloud/VPS
 
 ---
 
-## 📂 Project Structure
+## 🧱 Architecture Principles
 
+- OTP-first user creation
+- No partial database writes
+- No insecure password handling
+- Clear separation of concerns
+- Feature-based Git commits
+- Production-safe patterns from day one
+
+---
+
+## 📦 Project Status
+
+- **Current Phase:** Authentication & Registration (Completed)
+- **Next Phase:** Profile Editing & Media
+- **Future Phases:** Matching, Chat, Realtime Communication
+
+---
+
+## 📌 Notes
+
+This project is intentionally developed **step by step** to emphasize **correctness, security, and scalability**, rather than fast completion.
+
+---
+
+## 👨‍💻 Author
+
+Built as a **learning-driven backend project** to strengthen Django, system design, and real-world backend skills.

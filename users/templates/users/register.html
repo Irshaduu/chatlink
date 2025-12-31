@@ -3,19 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <title>ChatLink | Register</title>
+
     <style>
-        body { font-family: Arial; background:#f4f6f8; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
         .container {
-            max-width: 400px;
+            max-width: 420px;
             margin: 60px auto;
-            background: #fff;
+            background: #ffffff;
             padding: 25px;
             border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        label { display:block; margin-top:12px; }
-        input { width:100%; padding:10px; margin-top:5px; box-sizing:border-box; }
-        button { width:100%; margin-top:20px; padding:10px; background:#2d6cdf; color:#fff; border:none; }
-        .link { text-align:center; margin-top:15px; }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 14px;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 10px;
+            background: #2d6cdf;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button.secondary {
+            background: #999;
+            margin-top: 10px;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
 
         .message {
             text-align: center;
@@ -25,37 +77,119 @@
         .message.error { color: red; }
         .message.success { color: green; }
         .message.info { color: blue; }
+
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+
+        .age-note {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Register</h2>
+    <h2>Create Account</h2>
 
-{% if messages %}
-    {% for message in messages %}
-        {% if forloop.last %}
-            <p class="message {{ message.tags }}">{{ message }}</p>
-        {% endif %}
-    {% endfor %}
-{% endif %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if forloop.last %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 
-<form method="post">
-    {% csrf_token %}
+    <form method="post">
+        {% csrf_token %}
 
-    <label>Full Name</label>
-    <input type="text" name="full_name" placeholder="Full Name" required>
+        <!-- STEP 1 -->
+        <div class="step active" id="step-1">
+            <div class="step-title">Step 1 of 3 · Basic Information</div>
 
-    <label>Email or Mobile Number</label>
-    <input type="text" name="identifier" placeholder="Email or Mobile number" required>
+            <label>Email or Mobile Number</label>
+            <input type="text" name="identifier" placeholder="Email or Mobile number" required>
 
-    <button type="submit">Register</button>
-</form>
+            <label>Full Name</label>
+            <input type="text" name="full_name" placeholder="Your full name" required>
+
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Choose a username" required>
+
+            <button type="button" onclick="nextStep(2)">Next</button>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step" id="step-2">
+            <div class="step-title">Step 2 of 3 · Personal Details</div>
+
+            <label>Date of Birth</label>
+            <input type="date" name="dob" required>
+
+            <label>Country</label>
+            <select name="country" required>
+                {% load countries %}
+                {% get_countries as countries %}
+                <option value="">Select Country</option>
+                {% for country in countries %}
+                    <option value="{{ country.code }}">{{ country.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="button" class="secondary" onclick="prevStep(1)">Back</button>
+            <button type="button" onclick="nextStep(3)">Next</button>
+
+            <p class="age-note">
+                You must be at least 13 years old to use ChatLink.
+            </p>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step" id="step-3">
+            <div class="step-title">Step 3 of 3 · Language Preferences</div>
+
+            <label>Native Language</label>
+            <select name="native_language" required>
+                <option value="">Select Native Language</option>
+                {% for lang in languages %}
+                    <option value="{{ lang.code }}">{{ lang.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Learning Language</label>
+            <select name="learning_language" required>
+                <option value="">Select Learning Language</option>
+                {% for lang in languages %}
+                    <option value="{{ lang.code }}">{{ lang.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="button" class="secondary" onclick="prevStep(2)">Back</button>
+            <button type="submit">Send OTP</button>
+        </div>
+    </form>
 
     <div class="link">
-        <a href="/">Already have an account? Login</a>
+        <a href="{% url 'login' %}">Already have an account? Login</a>
     </div>
 </div>
+
+<script>
+    function nextStep(step) {
+        document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+        document.getElementById('step-' + step).classList.add('active');
+    }
+
+    function prevStep(step) {
+        nextStep(step);
+    }
+</script>
 
 </body>
 </html>
