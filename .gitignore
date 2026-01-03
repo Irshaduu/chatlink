@@ -1,20 +1,42 @@
-# Python cache
+# -------------------------
+# Python
+# -------------------------
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
+# -------------------------
 # Virtual environments
+# -------------------------
 env/
 env1/
 venv/
+.venv/
 
+# -------------------------
+# Environment variables / secrets
+# -------------------------
+.env
+.env.*
+!.env.example
+
+# -------------------------
 # Django
+# -------------------------
 db.sqlite3
 media/
 staticfiles/
+*.log
 
-# VS Code
+# -------------------------
+# Editor / IDE
+# -------------------------
 .vscode/
+.idea/
 
+# -------------------------
 # OS files
+# -------------------------
 .DS_Store
 Thumbs.db
