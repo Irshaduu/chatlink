@@ -12,5 +12,6 @@ urlpatterns = [
     path("reset-otp/", views.reset_otp_view, name="reset_otp"),
     path("reset-password/", views.reset_password_view, name="reset_password"),
     path("profile/", views.profile_view, name="profile"),
+    path("profile/edit/", views.edit_profile_view, name="edit_profile"),
 
 ]

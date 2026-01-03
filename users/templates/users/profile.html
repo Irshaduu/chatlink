@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>ChatLink | Profile</title>
@@ -8,8 +7,8 @@
     <style>
         body {
             font-family: "Apple Color Emoji", "Segoe UI Emoji",
-                "Segoe UI Symbol", Arial, sans-serif;
-            background: #f4f6f8;
+                         "Segoe UI Symbol", Arial, sans-serif;
+            background: #1b1c1e;
             margin: 0;
             padding: 0;
         }
@@ -17,99 +16,181 @@
         .container {
             max-width: 420px;
             margin: 70px auto;
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background: #0f0f10;
+            padding: 26px;
+            border-radius: 14px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+            color: #ffffff;
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 28px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .section {
+            background: #151618;
+            padding: 16px 16px 6px;
+            border-radius: 10px;
+            margin-bottom: 22px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            color: #6fa8ff;
+            margin-bottom: 14px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
         }
 
         .field {
-            margin: 14px 0;
-            font-size: 14px;
+            margin-bottom: 16px;
         }
 
         .label {
-            color: #555;
-            font-weight: bold;
+            font-size: 12px;
+            color: #9a9a9a;
+            margin-bottom: 6px;
         }
 
         .value {
-            margin-top: 4px;
-            color: #111;
+            font-size: 15px;
+            font-weight: 500;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .bio-value {
+            font-weight: 400;
+            color: #e0e0e0;
+            white-space: pre-wrap;
+            display: block;
+        }
+
+        .placeholder {
+            color: #888;
+            font-style: italic;
+        }
+
+        .gender-icon {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .country-flag {
+            height: 18px;
+            border-radius: 3px;
+            border: 1px solid #333;
         }
 
         .message {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
             font-size: 14px;
         }
+        .message.success { color: #5cb85c; }
+        .message.error { color: #d9534f; }
+        .message.info { color: #f0ad4e; }
 
-        .message.success {
-            color: green;
-        }
-
-        .message.error {
-            color: red;
-        }
-
-        .message.info {
-            color: #d4a000;
+        .edit-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 13px;
+            background: #2d6cdf;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
         }
 
         .logout-btn {
             width: 100%;
-            margin-top: 25px;
-            padding: 10px;
+            margin-top: 12px;
+            padding: 12px;
             background: #d9534f;
             color: #fff;
             border: none;
+            border-radius: 10px;
+            font-size: 15px;
             cursor: pointer;
-            font-size: 14px;
         }
 
         .note {
             font-size: 12px;
-            color: #777;
-            margin-top: 15px;
+            color: #888;
+            margin-top: 18px;
             text-align: center;
-        }
-
-        .country-flag {
-            height: 16px;
-            width: auto;
-            vertical-align: middle;
-            margin-left: 6px;
-            border: 1px solid #eee;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <h2>My Profile</h2>
+    <h2>My Profile</h2>
 
-        {% if messages %}
+    {% if messages %}
         {% for message in messages %}
-        {% if forloop.last %}
-        <p class="message {{ message.tags }}">{{ message }}</p>
-        {% endif %}
+            {% if forloop.last %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endif %}
         {% endfor %}
+    {% endif %}
+
+    <!-- ABOUT YOU -->
+    <div class="section">
+        <div class="section-title">About You</div>
+
+        <!-- Gender -->
+        <div class="field">
+            <div class="label">Gender</div>
+            <div class="value">
+                {% if request.user.gender == "male" %}
+                    <span class="gender-icon">♂</span> Male
+                {% elif request.user.gender == "female" %}
+                    <span class="gender-icon">♀</span> Female
+                {% else %}
+                    <span class="gender-icon">⚧</span> Other
+                {% endif %}
+            </div>
+        </div>
+
+        {% if request.user.full_name %}
+        <div class="field">
+            <div class="label">Full Name</div>
+            <div class="value">{{ request.user.full_name }}</div>
+        </div>
         {% endif %}
 
-        <!-- Username -->
+        <div class="field">
+            <div class="label">Bio</div>
+            <div class="value bio-value">
+                {% if request.user.bio %}
+                    {{ request.user.bio }}
+                {% else %}
+                    <span class="placeholder">No bio added yet.</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT -->
+    <div class="section">
+        <div class="section-title">Account</div>
+
         <div class="field">
             <div class="label">Username</div>
             <div class="value">{{ request.user.username }}</div>
         </div>
 
-        <!-- Email (masked) -->
         {% if request.user.email %}
         <div class="field">
             <div class="label">Email</div>
@@ -119,7 +200,6 @@
         </div>
         {% endif %}
 
-        <!-- Phone (masked) -->
         {% if request.user.phone %}
         <div class="field">
             <div class="label">Phone</div>
@@ -129,26 +209,28 @@
         </div>
         {% endif %}
 
-        <!-- Full Name -->
-        {% if request.user.full_name %}
         <div class="field">
-            <div class="label">Full Name</div>
-            <div class="value">{{ request.user.full_name }}</div>
+            <div class="label">Joined On</div>
+            <div class="value">{{ request.user.joined_at|date:"d M Y" }}</div>
         </div>
-        {% endif %}
+    </div>
 
-        <!-- Country (FLAG EMOJI + NAME) -->
+    <!-- PREFERENCES -->
+    <div class="section">
+        <div class="section-title">Preferences</div>
+
         {% if request.user.country %}
         <div class="field">
             <div class="label">Country</div>
             <div class="value">
-                {{ request.user.country.name }} <img src="{{ request.user.country.flag }}"
-                    alt="{{ request.user.country.name }}" class="country-flag">
+                {{ request.user.country.name }}
+                <img src="{{ request.user.country.flag }}"
+                     alt="Flag of {{ request.user.country.name }}"
+                     class="country-flag">
             </div>
         </div>
         {% endif %}
 
-        <!-- Native Language -->
         {% if request.user.native_language %}
         <div class="field">
             <div class="label">Native Language</div>
@@ -156,42 +238,29 @@
         </div>
         {% endif %}
 
-        <!-- Learning Language -->
         {% if request.user.learning_language %}
         <div class="field">
             <div class="label">Learning Language</div>
             <div class="value">{{ request.user.learning_language|upper }}</div>
         </div>
         {% endif %}
-
-        <!-- Bio -->
-        {% if request.user.bio %}
-        <div class="field">
-            <div class="label">Bio</div>
-            <div class="value">{{ request.user.bio }}</div>
-        </div>
-        {% endif %}
-
-        <!-- Joined Date -->
-        <div class="field">
-            <div class="label">Joined On</div>
-            <div class="value">
-                {{ request.user.joined_at|date:"d M Y" }}
-            </div>
-        </div>
-
-        <!-- Logout -->
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="logout-btn" type="submit">Logout</button>
-        </form>
-
-        <p class="note">
-            Personal details like date of birth are kept private for safety.
-        </p>
-
     </div>
 
-</body>
+    <!-- ACTIONS -->
+    <a href="{% url 'edit_profile' %}">
+        <button class="edit-btn">Edit Profile</button>
+    </a>
 
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button class="logout-btn">Logout</button>
+    </form>
+
+    <p class="note">
+        Personal details like date of birth are kept private for safety.
+    </p>
+
+</div>
+
+</body>
 </html>

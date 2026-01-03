@@ -132,6 +132,15 @@
             <label>Date of Birth</label>
             <input type="date" name="dob" required>
 
+            <label>Gender</label>
+            <select name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+
+
             <label>Country</label>
             <select name="country" required>
                 {% load countries %}

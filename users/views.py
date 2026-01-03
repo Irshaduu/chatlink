@@ -10,6 +10,8 @@ from django.views.decorators.http import require_POST
 from django.db.models import Q
 from .utils import get_all_languages
 from datetime import date
+from django.utils import timezone
+from datetime import timedelta
 
 
 User = get_user_model()
@@ -69,6 +71,8 @@ def register_view(request):
         identifier = request.POST.get("identifier", "").strip()
 
         dob_str = request.POST.get("dob", "").strip()
+        gender = request.POST.get("gender", "").strip()
+
         country = request.POST.get("country", "").strip()
         native_language = request.POST.get("native_language", "").strip()
         learning_language = request.POST.get("learning_language", "").strip()
@@ -81,11 +85,19 @@ def register_view(request):
             username,
             identifier,
             dob_str,
+            gender,
             country,
             native_language,
             learning_language
         ]):
             messages.error(request, "All fields are required.")
+            return redirect("register")
+
+        # -----------------------------
+        # Gender validation (LOCKED)
+        # -----------------------------
+        if gender not in ["male", "female", "other"]:
+            messages.error(request, "Please select a valid gender.")
             return redirect("register")
 
         # -----------------------------
@@ -106,7 +118,7 @@ def register_view(request):
             return redirect("login")
 
         # -----------------------------
-        # DOB validation (18+)
+        # DOB validation (13+)
         # -----------------------------
         try:
             dob = date.fromisoformat(dob_str)
@@ -125,7 +137,6 @@ def register_view(request):
                 "You must be at least 13 years old to use ChatLink."
             )
             return redirect("register")
-
 
         # -----------------------------
         # Clean old OTPs
@@ -156,6 +167,7 @@ def register_view(request):
         request.session["pending_username"] = username
         request.session["pending_identifier"] = identifier
         request.session["pending_dob"] = dob_str
+        request.session["pending_gender"] = gender
         request.session["pending_country"] = country
         request.session["pending_native_language"] = native_language
         request.session["pending_learning_language"] = learning_language
@@ -176,23 +188,28 @@ def register_view(request):
 
 
 
-
 # -----------------------------------------------
 # OTP VERIFY → CREATE USER + AUTO LOGIN
 # -----------------------------------------------
 @never_cache
 def otp_verify_view(request):
+    # -----------------------------
     # Fetch pending session data
+    # -----------------------------
     username = request.session.get("pending_username")
     identifier = request.session.get("pending_identifier")
 
     full_name = request.session.get("pending_full_name")
     dob = request.session.get("pending_dob")
+    gender = request.session.get("pending_gender")
+
     country = request.session.get("pending_country")
     native_language = request.session.get("pending_native_language")
     learning_language = request.session.get("pending_learning_language")
 
+    # -----------------------------
     # Session safety check
+    # -----------------------------
     if not username or not identifier:
         messages.error(request, "Session expired. Please register again.")
         return redirect("register")
@@ -208,18 +225,24 @@ def otp_verify_view(request):
         password = request.POST.get("password", "").strip()
         confirm_password = request.POST.get("confirm_password", "").strip()
 
+        # -----------------------------
         # OTP expiry check
+        # -----------------------------
         if otp_obj.is_expired():
             otp_obj.delete()
             messages.error(request, "OTP expired. Please register again.")
             return redirect("register")
 
+        # -----------------------------
         # OTP validation
+        # -----------------------------
         if otp_input != otp_obj.otp:
             messages.error(request, "Invalid OTP.")
             return redirect("otp_verify")
 
+        # -----------------------------
         # Password validation
+        # -----------------------------
         if not password or not confirm_password:
             messages.error(request, "All fields are required.")
             return redirect("otp_verify")
@@ -228,7 +251,9 @@ def otp_verify_view(request):
             messages.error(request, "Passwords do not match.")
             return redirect("otp_verify")
 
-        # 🔐 Critical race-condition protection
+        # -----------------------------
+        # Race-condition protection
+        # -----------------------------
         if User.objects.filter(username=username).exists():
             messages.error(
                 request,
@@ -236,32 +261,39 @@ def otp_verify_view(request):
             )
             return redirect("register")
 
-        # ✅ Create user ONLY after OTP verification
+        # -----------------------------
+        # Create user (AFTER OTP)
+        # -----------------------------
         user = User.objects.create_user(
             username=username,
             password=password
         )
 
-        # Assign identifier
+        # Identifier
         if "@" in identifier:
             user.email = identifier
         else:
             user.phone = identifier
 
-        # Assign profile & registration data
+        # Profile data
         user.full_name = full_name
         user.date_of_birth = dob
+        user.gender = gender
         user.country = country
         user.native_language = native_language
         user.learning_language = learning_language
 
         user.save()
 
+        # -----------------------------
         # Auto login
+        # -----------------------------
         user.backend = "django.contrib.auth.backends.ModelBackend"
         login(request, user)
 
+        # -----------------------------
         # Cleanup OTP + session
+        # -----------------------------
         otp_obj.delete()
 
         for key in [
@@ -269,6 +301,7 @@ def otp_verify_view(request):
             "pending_identifier",
             "pending_full_name",
             "pending_dob",
+            "pending_gender",
             "pending_country",
             "pending_native_language",
             "pending_learning_language",
@@ -418,6 +451,68 @@ def home_view(request):
 @login_required
 def profile_view(request):
     return render(request, "users/profile.html", {"user": request.user})
+
+
+# -------------------------------------------------
+# EDIT PROFILE
+# -------------------------------------------------
+
+@never_cache
+@login_required
+def edit_profile_view(request):
+    user = request.user
+
+    if request.method == "POST":
+        full_name = request.POST.get("full_name", "").strip()
+        bio = request.POST.get("bio", "").strip()
+        new_learning_language = request.POST.get("learning_language", "").strip()
+
+        # -----------------------------
+        # Basic validation
+        # -----------------------------
+        if not full_name:
+            messages.error(request, "Full name is required.")
+            return redirect("edit_profile")
+
+        # -----------------------------
+        # Update allowed fields
+        # -----------------------------
+        user.full_name = full_name
+        user.bio = bio
+
+        # -----------------------------
+        # Learning language cooldown
+        # -----------------------------
+        if new_learning_language and new_learning_language != user.learning_language:
+            now = timezone.now()
+
+            if user.learning_language_updated_at:
+                next_allowed = user.learning_language_updated_at + timedelta(days=15)
+                if now < next_allowed:
+                    remaining_days = (next_allowed - now).days + 1
+                    messages.error(
+                        request,
+                        f"You can change learning language after {remaining_days} day(s)."
+                    )
+                    return redirect("edit_profile")
+
+            # ✅ Allowed to change
+            user.learning_language = new_learning_language
+            user.learning_language_updated_at = now
+
+        user.save()
+
+        messages.success(request, "Profile updated successfully.")
+        return redirect("profile")
+
+    return render(
+        request,
+        "users/edit_profile.html",
+        {
+            "user": user,
+            "languages": get_all_languages(),
+        }
+    )
 
 
 

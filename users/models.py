@@ -3,8 +3,15 @@ from django.db import models
 from django.utils import timezone
 from datetime import timedelta
 import random
-
 from django_countries.fields import CountryField
+
+
+
+GENDER_CHOICES = [
+    ("male", "Male"),
+    ("female", "Female"),
+    ("other", "Other"),
+]
 
 
 # -------------------------------------------------
@@ -26,6 +33,13 @@ class User(AbstractUser):
     # 🗣 Language system (ISO 639 codes)
     native_language = models.CharField(max_length=10, blank=True)
     learning_language = models.CharField(max_length=10, blank=True)
+    learning_language_updated_at = models.DateTimeField(null=True, blank=True)
+    gender = models.CharField(
+    max_length=10,
+    choices=GENDER_CHOICES,
+    default="other",   # 🔑 REQUIRED
+    )
+
 
     # Meta
     joined_at = models.DateTimeField(auto_now_add=True)
