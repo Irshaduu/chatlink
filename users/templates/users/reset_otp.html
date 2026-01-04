@@ -27,6 +27,11 @@
             background: #2d6cdf;
             color: #fff;
             border: none;
+            cursor: pointer;
+        }
+        .resend-btn {
+            background: #6c757d;
+            margin-top: 10px;
         }
         .message { margin-top:10px; }
         .error { color:red; }
@@ -38,18 +43,24 @@
 <div class="container">
     <h2>Verify OTP</h2>
 
-{% if messages %}
-    {% for message in messages %}
-        {% if forloop.last %}
-            <p class="message {{ message.tags }}">{{ message }}</p>
-        {% endif %}
-    {% endfor %}
-{% endif %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if forloop.last %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 
     <form method="post">
         {% csrf_token %}
         <input type="text" name="otp" placeholder="Enter OTP" required>
         <button type="submit">Verify OTP</button>
+    </form>
+
+    <!-- RESEND OTP -->
+    <form method="post" action="{% url 'resend_reset_otp' %}">
+        {% csrf_token %}
+        <button type="submit" class="resend-btn">Resend OTP</button>
     </form>
 </div>
 

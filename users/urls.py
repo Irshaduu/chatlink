@@ -13,5 +13,6 @@ urlpatterns = [
     path("reset-password/", views.reset_password_view, name="reset_password"),
     path("profile/", views.profile_view, name="profile"),
     path("profile/edit/", views.edit_profile_view, name="edit_profile"),
+    path("reset-otp/resend/", views.resend_reset_otp_view, name="resend_reset_otp"),
 
 ]
