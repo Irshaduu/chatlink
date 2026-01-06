@@ -12,6 +12,7 @@ from datetime import date, timedelta
 import re
 from .models import PendingOTP, PasswordResetOTP
 from .utils import get_all_languages
+from datetime import datetime
 
 
 User = get_user_model()
@@ -145,7 +146,7 @@ def register_view(request):
         })
 
         messages.success(request, "OTP sent successfully.")
-        return redirect("otp_verify")
+        return redirect("verify_registration_otp")
 
     return render(request, "users/register.html", {
         "languages": get_all_languages()
@@ -156,7 +157,7 @@ def register_view(request):
 # OTP VERIFY → CREATE USER
 # -------------------------------------------------
 @never_cache
-def otp_verify_view(request):
+def verify_registration_otp(request):
     username = request.session.get("pending_username")
     identifier = request.session.get("pending_identifier")
 
@@ -183,11 +184,11 @@ def otp_verify_view(request):
         valid, message = otp_obj.verify_otp(otp_input)
         if not valid:
             messages.error(request, message)
-            return redirect("otp_verify")
+            return redirect("verify_registration_otp")
 
         if not password or password != confirm_password:
             messages.error(request, "Passwords do not match.")
-            return redirect("otp_verify")
+            return redirect("verify_registration_otp")
 
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already taken.")
@@ -204,7 +205,9 @@ def otp_verify_view(request):
             user.phone = identifier
 
         user.full_name = request.session.get("pending_full_name")
-        user.date_of_birth = request.session.get("pending_dob")
+        user.date_of_birth = date.fromisoformat(
+            request.session.get("pending_dob")
+        )
         user.gender = request.session.get("pending_gender")
         user.country = request.session.get("pending_country")
         user.native_language = request.session.get("pending_native_language")
@@ -222,13 +225,13 @@ def otp_verify_view(request):
         messages.success(request, "Account created successfully.")
         return redirect("home")
 
-    return render(request, "users/otp_verify.html")
+    return render(request, "users/verify_registration_otp.html")
 
 
 # -------------------------------------------------
 # RESEND OTP (REGISTER)
 # -------------------------------------------------
-def resend_otp_view(request):
+def resend_registration_otp(request):
     identifier = request.session.get("pending_identifier")
 
     if not identifier:
@@ -245,7 +248,7 @@ def resend_otp_view(request):
             request,
             "Please wait before requesting another OTP."
         )
-        return redirect("otp_verify")
+        return redirect("verify_registration_otp")
 
     otp_obj.generate_otp(is_resend=True)
 
@@ -258,7 +261,7 @@ def resend_otp_view(request):
         )
 
     messages.success(request, "New OTP sent.")
-    return redirect("otp_verify")
+    return redirect("verify_registration_otp")
 
 # -------------------------------------------------
 # FORGOT PASSWORD → SEND OTP
@@ -279,13 +282,13 @@ def forgot_password_view(request):
 
         otp_obj = PasswordResetOTP.objects.filter(identifier=identifier).first()
 
-        # 🚫 HARD STOP on resend abuse (NOT attempts)
-        if otp_obj and otp_obj.resend_count >= otp_obj.MAX_FREE_RESENDS:
+        if otp_obj and not otp_obj.can_resend():
             messages.error(
                 request,
-                "Too many OTP requests. Please wait before trying again."
+                "Please wait before requesting another OTP."
             )
             return redirect("forgot_password")
+
 
         if not otp_obj or otp_obj.is_expired():
             PasswordResetOTP.objects.filter(identifier=identifier).delete()
@@ -302,7 +305,7 @@ def forgot_password_view(request):
 
         request.session["reset_identifier"] = identifier
         messages.success(request, "OTP sent successfully.")
-        return redirect("reset_otp")
+        return redirect("verify_password_reset_otp")
 
     return render(request, "users/forgot_password.html")
 
@@ -310,7 +313,7 @@ def forgot_password_view(request):
 # -------------------------------------------------
 # RESEND OTP (PASSWORD RESET)
 # -------------------------------------------------
-def resend_reset_otp_view(request):
+def resend_password_reset_otp(request):
     identifier = request.session.get("reset_identifier")
 
     if not identifier:
@@ -327,7 +330,7 @@ def resend_reset_otp_view(request):
             request,
             "Please wait before requesting another OTP."
         )
-        return redirect("reset_otp")
+        return redirect("verify_password_reset_otp")
 
     otp_obj.generate_otp(is_resend=True)
 
@@ -340,14 +343,14 @@ def resend_reset_otp_view(request):
         )
 
     messages.success(request, "New OTP sent.")
-    return redirect("reset_otp")
+    return redirect("verify_password_reset_otp")
 
 
 
 # -------------------------------------------------
 # VERIFY PASSWORD RESET OTP
 # -------------------------------------------------
-def reset_otp_view(request):
+def verify_password_reset_otp(request):
     identifier = request.session.get("reset_identifier")
 
     if not identifier:
@@ -365,7 +368,7 @@ def reset_otp_view(request):
 
         if not valid:
             messages.error(request, message)
-            return redirect("reset_otp")
+            return redirect("verify_password_reset_otp")
 
         otp_obj.delete()
         request.session["reset_verified"] = True
@@ -373,7 +376,7 @@ def reset_otp_view(request):
 
         return redirect("reset_password")
 
-    return render(request, "users/reset_otp.html")
+    return render(request, "users/verify_password_reset_otp.html")
 
 
 # -------------------------------------------------
@@ -387,7 +390,8 @@ def reset_password_view(request):
         messages.error(request, "Session expired.")
         return redirect("forgot_password")
 
-    verified_time = timezone.datetime.fromisoformat(verified_at)
+    verified_time = datetime.fromisoformat(verified_at)
+
     if timezone.now() - verified_time > timedelta(minutes=10):
         request.session.flush()
         messages.error(request, "Reset session expired.")

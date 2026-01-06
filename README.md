@@ -1,43 +1,62 @@
 # 💬 ChatLink
 
-**ChatLink** is a backend-focused communication platform where users connect with others based on language preferences.
+**ChatLink** is a backend-focused communication platform designed to connect users based on language preferences.
 
-This project is built as a **learning + portfolio project** with a strong focus on **real-world backend architecture**, security, and clean Django practices — not as a rushed demo app.
-
----
-
-## 🎯 Project Objectives
-
-- Practice Django from **foundation to advanced backend concepts**
-- Build a **production-oriented authentication and onboarding system**
-- Gain hands-on experience with:
-  - Custom user models
-  - OTP-based authentication
-  - Secure session handling
-  - Scalable data modeling
-- Prepare confidently for **backend developer interviews**
+This project is built as a **learning-driven, production-oriented backend system**, with strong emphasis on **security, correctness, and real-world Django architecture** — not as a rushed demo or tutorial app.
 
 ---
 
-## 🔐 Authentication & Registration (Implemented)
+## 🎯 Project Goals
 
-ChatLink uses a **security-first, OTP-based authentication flow**.
+- Master Django from **core fundamentals to advanced backend patterns**
+- Design a **secure, OTP-first authentication system**
+- Apply **production-grade thinking** from day one
+- Build a backend suitable for **real users, real data, and real scaling**
+- Prepare confidently for **backend & full-stack developer interviews**
+
+---
+
+## 🔐 Authentication & Onboarding (Completed)
+
+ChatLink uses a **security-first, OTP-based authentication architecture**.
 
 ### ✔ Implemented Features
 
-- ✅ Custom User model (`AbstractUser`)
+- ✅ Custom `User` model (`AbstractUser`)
 - ✅ OTP-based registration (Email or Mobile)
 - ✅ OTP-based password reset
-- ✅ Login via Username / Email / Mobile
-- ✅ OTP-first architecture (no half-created users)
-- ✅ Session-safe account creation & cleanup
+- ✅ Login via Username / Email / Phone
+- ✅ OTP-first account creation (no ghost users)
+- ✅ Secure session lifecycle management
+- ✅ Attempt limits & resend throttling
+- ✅ OTP expiry enforcement
+- ✅ Identifier uniqueness (Email & Phone)
 - ✅ Age validation (**13+ only**)
 - ✅ Country selection (ISO standard)
-- ✅ Native & learning language preferences (ISO codes)
-- ✅ Secure logout (POST + CSRF)
-- ✅ Cache-safe protected pages
+- ✅ Native & learning language preferences
+- ✅ POST-only logout with CSRF protection
+- ✅ Cache-safe protected views
 
-> User accounts are created **only after OTP verification**, preventing incomplete or ghost users.
+> User accounts are created **only after successful OTP verification**, ensuring database integrity and preventing partial or abandoned users.
+
+---
+
+## 🧠 OTP Security Model
+
+ChatLink implements a **hardened OTP lifecycle**:
+
+- Limited OTP attempts per session
+- Limited free OTP resends
+- Cooldown enforcement after free resends
+- Automatic cleanup of expired or abused OTPs
+- Separate OTP models for:
+  - Registration
+  - Password reset
+
+This design prevents:
+- OTP brute-forcing
+- Abuse via repeated resend requests
+- Infinite verification loops
 
 ---
 
@@ -48,8 +67,8 @@ ChatLink uses a **security-first, OTP-based authentication flow**.
 
 ### In Progress
 - 🔄 Edit profile details
-- 🔄 Update language preferences
-- 🔄 Profile picture upload
+- 🔄 Language update cooldown logic
+- 🔄 Profile media support
 
 ---
 
@@ -67,46 +86,59 @@ ChatLink uses a **security-first, OTP-based authentication flow**.
 ## 🛠 Tech Stack
 
 ### Backend
-- **Python:** 3.11.9  
+- **Python:** 3.11  
 - **Django:** 4.2 (LTS)  
-- **Authentication:** Custom OTP-based system  
+- **Auth System:** Custom OTP-based authentication  
 - **Countries:** `django-countries`  
 - **Languages:** `pycountry`
 
 ### Planned Extensions
-- **API:** Django REST Framework
+- **API Layer:** Django REST Framework
 - **Realtime:** Django Channels
 - **Cache / Broker:** Redis
 - **Background Tasks:** Celery
-- **Deployment:** Docker + Cloud/VPS
+- **Deployment:** Docker + VPS / Cloud
 
 ---
 
 ## 🧱 Architecture Principles
 
-- OTP-first user creation
+- OTP-first onboarding
 - No partial database writes
-- No insecure password handling
+- No insecure credential handling
+- Explicit session control
 - Clear separation of concerns
-- Feature-based Git commits
+- Feature-scoped Git commits
+- Refactor-friendly code structure
 - Production-safe patterns from day one
 
 ---
 
 ## 📦 Project Status
 
-- **Current Phase:** Authentication & Registration (Completed)
+- **Current Phase:** Authentication & OTP Security ✅
 - **Next Phase:** Profile Editing & Media
-- **Future Phases:** Matching, Chat, Realtime Communication
+- **Upcoming Phases:** Matching, Chat, Realtime Communication
 
 ---
 
-## 📌 Notes
+## 📌 Philosophy
 
-This project is intentionally developed **step by step** to emphasize **correctness, security, and scalability**, rather than fast completion.
+This project is intentionally developed **slowly and correctly**, prioritizing:
+
+- Security over shortcuts
+- Clarity over cleverness
+- Architecture over hacks
+
+The goal is not just *“it works”*, but *“it works safely, predictably, and scalably.”*
 
 ---
 
 ## 👨‍💻 Author
 
-Built as a **learning-driven backend project** to strengthen Django, system design, and real-world backend skills.
+Built as a **learning-driven backend project** to strengthen:
+
+- Django internals
+- Authentication system design
+- Secure backend workflows
+- Real-world engineering discipline

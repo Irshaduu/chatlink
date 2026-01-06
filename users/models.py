@@ -75,6 +75,8 @@ class PendingOTP(models.Model):
 
         if is_resend:
             self.resend_count += 1
+            self.created_at = timezone.now()  # reset expiry timer
+
 
         self.last_sent_at = timezone.now()
         self.save()
@@ -139,6 +141,7 @@ class PasswordResetOTP(models.Model):
 
         if is_resend:
             self.resend_count += 1
+            self.created_at = timezone.now()  # 🔥 RESET EXPIRY TIMER
 
         self.last_sent_at = timezone.now()
         self.save()
